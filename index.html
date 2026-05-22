@@ -258,7 +258,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
         <div class="logo">任务<span>·</span>清单</div>
         <div class="header-right">
           <span class="date-label" id="date-label"></span>
-          <button class="logout-btn" onclick="sb.auth.signOut().then(()=>location.reload())">
+          <button class="logout-btn" onclick="sb.auth.signOut();setTimeout(()=>location.reload(),300)">
             <i class="ti ti-logout" style="font-size:12px" aria-hidden="true"></i>退出
           </button>
         </div>
