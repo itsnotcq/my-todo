@@ -386,13 +386,6 @@ function translateError(msg) {
 async function logout() {
   await sb.auth.signOut();
 }
-  document.getElementById('otp-input').value = '';
-  hideErr('otp-err');
-}
-
-async function logout() {
-  await sb.auth.signOut();
-}
 
 // ── Auth state listener ──
 sb.auth.onAuthStateChange(async (event, session) => {
