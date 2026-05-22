@@ -4,692 +4,585 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>我的任务</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.7.0/dist/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root {
-  --bg: #F7F5F0;
-  --surface: #FFFFFF;
-  --surface2: #F0EDE6;
-  --border: rgba(0,0,0,0.09);
-  --border-strong: rgba(0,0,0,0.16);
-  --text: #1A1916;
-  --text-2: #6B6860;
-  --text-3: #A09E99;
-  --blue-bg: #EFF4FF;
-  --blue-text: #1E40AF;
-  --green-bg: #ECFDF5;
-  --green-text: #065F46;
-  --gray-bg: #F0EDE6;
-  --gray-text: #5F5E5A;
-  --accent: #D4A853;
-  --radius: 10px;
-  --radius-lg: 14px;
+  --bg:#F7F5F0;--surface:#FFF;--surface2:#F0EDE6;
+  --border:rgba(0,0,0,0.09);--border-strong:rgba(0,0,0,0.16);
+  --text:#1A1916;--text2:#6B6860;--text3:#A09E99;
+  --blue-bg:#EFF4FF;--blue-text:#1E40AF;
+  --green-bg:#ECFDF5;--green-text:#065F46;
+  --gray-bg:#F0EDE6;--gray-text:#5F5E5A;
+  --accent:#D4A853;--r:10px;--rl:14px;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #141412;
-    --surface: #1E1D1A;
-    --surface2: #272521;
-    --border: rgba(255,255,255,0.08);
-    --border-strong: rgba(255,255,255,0.14);
-    --text: #F0EDE6;
-    --text-2: #9E9B94;
-    --text-3: #6B6860;
-    --blue-bg: #1E2A4A;
-    --blue-text: #93B4F8;
-    --green-bg: #0D2E22;
-    --green-text: #6EE7B7;
-    --gray-bg: #2A2825;
-    --gray-text: #A09E99;
-  }
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-/* ── Auth screen ── */
-#auth-screen {
-  display: flex; align-items: center; justify-content: center;
-  min-height: 100vh; padding: 24px;
-}
-.auth-card {
-  background: var(--surface);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 36px 32px;
-  width: 100%; max-width: 380px;
-}
-.auth-logo {
-  font-family: 'Noto Serif SC', serif;
-  font-size: 24px; font-weight: 500;
-  color: var(--text); margin-bottom: 6px;
-}
-.auth-logo span { color: var(--accent); }
-.auth-sub { font-size: 13px; color: var(--text-3); margin-bottom: 28px; }
-.auth-label { font-size: 12px; font-weight: 500; color: var(--text-2); margin-bottom: 6px; display: block; }
-.auth-input {
-  width: 100%; border: 0.5px solid var(--border-strong);
-  border-radius: var(--radius); padding: 10px 14px;
-  font-size: 14px; font-family: 'DM Sans', sans-serif;
-  background: var(--surface2); color: var(--text);
-  outline: none; transition: border-color .15s; margin-bottom: 12px;
-}
-.auth-input:focus { border-color: var(--accent); background: var(--surface); }
-.auth-input::placeholder { color: var(--text-3); }
-.auth-btn {
-  width: 100%; padding: 11px;
-  background: var(--accent); color: #fff;
-  border: none; border-radius: var(--radius);
-  font-size: 14px; font-weight: 500;
-  font-family: 'DM Sans', sans-serif;
-  cursor: pointer; transition: background .15s;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-.auth-btn:hover { background: #B8902F; }
-.auth-btn:disabled { background: #C4A060; cursor: not-allowed; }
-.auth-hint { font-size: 12px; color: var(--text-3); text-align: center; margin-top: 14px; line-height: 1.6; }
-.auth-back { background: none; border: none; color: var(--text-3); font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; margin-top: 10px; display: block; text-align: center; width: 100%; }
-.auth-back:hover { color: var(--text-2); }
-.auth-divider { border: none; border-top: 0.5px solid var(--border); margin: 20px 0; }
-.auth-toggle { display: flex; gap: 0; background: var(--surface2); border-radius: var(--radius); padding: 3px; margin-bottom: 24px; border: 0.5px solid var(--border); }
-.auth-toggle-btn { flex: 1; padding: 7px; border: none; background: transparent; border-radius: calc(var(--radius) - 2px); cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-3); font-family: 'DM Sans', sans-serif; transition: all .15s; }
-.auth-toggle-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-.err-msg { font-size: 12px; color: #E24B4A; margin-top: 8px; display: none; }
-.err-msg.show { display: block; }
-.success-box { background: var(--green-bg); border: 0.5px solid #6EE7B7; border-radius: var(--radius); padding: 14px 16px; text-align: center; display: none; }
-.success-box.show { display: block; }
-.success-box p { font-size: 13px; color: var(--green-text); line-height: 1.6; }
+/* AUTH */
+#auth{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);padding:36px 32px;width:100%;max-width:380px}
+.logo{font-family:'Noto Serif SC',serif;font-size:24px;font-weight:500;margin-bottom:4px}
+.logo span{color:var(--accent)}
+.sub{font-size:13px;color:var(--text3);margin-bottom:24px}
+.toggle{display:flex;background:var(--surface2);border-radius:var(--r);padding:3px;margin-bottom:20px;border:0.5px solid var(--border)}
+.toggle button{flex:1;padding:7px;border:none;background:transparent;border-radius:calc(var(--r) - 2px);cursor:pointer;font-size:13px;font-weight:500;color:var(--text3);font-family:'DM Sans',sans-serif;transition:all .15s}
+.toggle button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+label.lbl{display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:5px}
+input.inp{width:100%;border:0.5px solid var(--border-strong);border-radius:var(--r);padding:10px 14px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--surface2);color:var(--text);outline:none;margin-bottom:12px;transition:all .15s}
+input.inp:focus{border-color:var(--accent);background:var(--surface)}
+input.inp::placeholder{color:var(--text3)}
+.btn-primary{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary:hover{background:#B8902F}
+.btn-primary:disabled{background:#C4A060;cursor:not-allowed}
+.err{font-size:12px;color:#E24B4A;margin-bottom:10px;display:none;line-height:1.5}
+.err.on{display:block}
+.success{background:var(--green-bg);border:0.5px solid #6EE7B7;border-radius:var(--r);padding:14px;text-align:center;font-size:13px;color:var(--green-text);line-height:1.6;display:none}
+.success.on{display:block}
+hr.div{border:none;border-top:0.5px solid var(--border);margin:16px 0}
 
-/* ── App ── */
-#app-screen { display: none; }
-.app { max-width: 720px; margin: 0 auto; padding: 48px 24px 80px; }
-.header { margin-bottom: 36px; }
-.header-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
-.logo { font-family: 'Noto Serif SC', serif; font-size: 26px; font-weight: 500; color: var(--text); }
-.logo span { color: var(--accent); }
-.header-right { display: flex; align-items: center; gap: 12px; }
-.date-label { font-size: 12px; color: var(--text-3); letter-spacing: 0.04em; }
-.logout-btn {
-  border: 0.5px solid var(--border); background: transparent;
-  border-radius: var(--radius); padding: 4px 10px;
-  font-size: 12px; color: var(--text-3); cursor: pointer;
-  font-family: 'DM Sans', sans-serif; transition: all .15s;
-  display: flex; align-items: center; gap: 4px;
-}
-.logout-btn:hover { background: var(--surface2); color: var(--text-2); }
-.stats-row { display: flex; gap: 16px; }
-.stat-chip { font-size: 12px; color: var(--text-3); display: flex; align-items: center; gap: 4px; }
-.stat-chip b { color: var(--text-2); font-weight: 500; }
-.user-phone { font-size: 12px; color: var(--text-3); }
+/* APP */
+#app{display:none}
+.wrap{max-width:720px;margin:0 auto;padding:48px 24px 80px}
+.hdr{margin-bottom:32px}
+.hdr-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+.hdr-logo{font-family:'Noto Serif SC',serif;font-size:26px;font-weight:500}
+.hdr-logo span{color:var(--accent)}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.date{font-size:12px;color:var(--text3)}
+.out-btn{border:0.5px solid var(--border);background:transparent;border-radius:var(--r);padding:4px 10px;font-size:12px;color:var(--text3);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;display:flex;align-items:center;gap:4px}
+.out-btn:hover{background:var(--surface2);color:var(--text2)}
+.stats{display:flex;gap:12px;font-size:12px;color:var(--text3)}
+.stats b{color:var(--text2);font-weight:500}
 
-.tabs { display: flex; gap: 2px; background: var(--surface2); border-radius: var(--radius); padding: 3px; margin-bottom: 20px; border: 0.5px solid var(--border); }
-.tab { flex: 1; padding: 7px 12px; border: none; background: transparent; border-radius: calc(var(--radius) - 2px); cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-3); font-family: 'DM Sans', sans-serif; transition: all .15s ease; display: flex; align-items: center; justify-content: center; gap: 6px; }
-.tab .tab-dot { width: 6px; height: 6px; border-radius: 50%; opacity: 0.6; }
-.tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-.tab.active .tab-dot { opacity: 1; }
-.tab:hover:not(.active) { color: var(--text-2); }
+.tabs{display:flex;gap:2px;background:var(--surface2);border-radius:var(--r);padding:3px;margin-bottom:16px;border:0.5px solid var(--border)}
+.tab{flex:1;padding:7px 12px;border:none;background:transparent;border-radius:calc(var(--r) - 2px);cursor:pointer;font-size:13px;font-weight:500;color:var(--text3);font-family:'DM Sans',sans-serif;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.tab .dot{width:6px;height:6px;border-radius:50%;opacity:.6}
+.tab.on{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.tab.on .dot{opacity:1}
 
-.import-bar { background: linear-gradient(135deg, #FFF8EC 0%, #FFF3D6 100%); border: 0.5px solid #E8C97A; border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 16px; display: none; }
-@media (prefers-color-scheme: dark) { .import-bar { background: linear-gradient(135deg, #2A2110 0%, #231C0A 100%); border-color: #6B5020; } }
-.import-bar.active { display: block; }
-.import-label { font-size: 12px; font-weight: 500; color: #92620A; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-@media (prefers-color-scheme: dark) { .import-label { color: #D4A853; } }
-.import-textarea { width: 100%; background: rgba(255,255,255,0.7); border: 0.5px solid #E8C97A; border-radius: var(--radius); padding: 10px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--text); resize: vertical; min-height: 72px; outline: none; transition: border-color .15s; line-height: 1.6; }
-@media (prefers-color-scheme: dark) { .import-textarea { background: rgba(255,255,255,0.05); border-color: #6B5020; } }
-.import-textarea:focus { border-color: #D4A853; }
-.import-textarea::placeholder { color: #C4A060; }
-.import-hint { font-size: 11px; color: #A07830; margin-top: 6px; line-height: 1.5; }
-.import-actions { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
-.import-btn-primary { padding: 7px 16px; background: #D4A853; color: #fff; border: none; border-radius: var(--radius); font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .15s; display: flex; align-items: center; gap: 6px; }
-.import-btn-primary:hover { background: #B8902F; }
-.import-btn-cancel { padding: 7px 14px; background: transparent; color: #A07830; border: 0.5px solid #E8C97A; border-radius: var(--radius); font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
-.import-btn-cancel:hover { background: rgba(212,168,83,0.1); }
-.import-preview { margin-top: 10px; background: rgba(255,255,255,0.5); border: 0.5px solid #E8C97A; border-radius: var(--radius); padding: 10px 12px; display: none; }
-.import-preview.show { display: block; }
-.preview-label { font-size: 11px; color: #A07830; margin-bottom: 6px; }
-.preview-item { font-size: 12px; color: var(--text-2); padding: 3px 0; display: flex; align-items: center; gap: 6px; }
-.preview-item::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: #D4A853; flex-shrink: 0; }
-.import-trigger { border: 0.5px dashed var(--border-strong); background: transparent; border-radius: var(--radius); padding: 6px 12px; cursor: pointer; color: var(--text-3); font-size: 12px; display: flex; align-items: center; gap: 5px; transition: all .15s; font-family: 'DM Sans', sans-serif; margin-bottom: 12px; width: 100%; justify-content: center; }
-.import-trigger:hover { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
+/* import */
+.imp-btn{width:100%;border:0.5px dashed var(--border-strong);background:transparent;border-radius:var(--r);padding:7px;cursor:pointer;color:var(--text3);font-size:12px;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'DM Sans',sans-serif;margin-bottom:12px;transition:all .15s}
+.imp-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--surface2)}
+.imp-box{background:linear-gradient(135deg,#FFF8EC,#FFF3D6);border:0.5px solid #E8C97A;border-radius:var(--rl);padding:14px 16px;margin-bottom:12px;display:none}
+.imp-box.on{display:block}
+.imp-lbl{font-size:12px;font-weight:500;color:#92620A;margin-bottom:8px}
+.imp-ta{width:100%;background:rgba(255,255,255,0.7);border:0.5px solid #E8C97A;border-radius:var(--r);padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);resize:vertical;min-height:68px;outline:none;line-height:1.6}
+.imp-ta:focus{border-color:var(--accent)}
+.imp-ta::placeholder{color:#C4A060}
+.imp-hint{font-size:11px;color:#A07830;margin-top:5px}
+.imp-prev{margin-top:8px;background:rgba(255,255,255,0.5);border:0.5px solid #E8C97A;border-radius:var(--r);padding:8px 12px;display:none}
+.imp-prev.on{display:block}
+.imp-prev-lbl{font-size:11px;color:#A07830;margin-bottom:4px}
+.imp-item{font-size:12px;color:var(--text2);padding:2px 0;display:flex;align-items:center;gap:6px}
+.imp-item::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.imp-actions{display:flex;gap:8px;margin-top:10px;align-items:center}
+.imp-cat{font-size:12px;border:0.5px solid #E8C97A;border-radius:6px;padding:3px 8px;background:rgba(255,255,255,0.6);color:var(--text);font-family:'DM Sans',sans-serif;cursor:pointer;outline:none}
+.imp-ok{padding:7px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px}
+.imp-ok:hover{background:#B8902F}
+.imp-cancel{padding:7px 14px;background:transparent;color:#A07830;border:0.5px solid #E8C97A;border-radius:var(--r);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
 
-.section { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 12px; overflow: hidden; }
-.section-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 0.5px solid var(--border); }
-.section-label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--text-2); }
-.dot { width: 8px; height: 8px; border-radius: 50%; }
-.dot-work { background: #2563EB; }
-.dot-life { background: #059669; }
-.dot-done { background: #A09E99; }
-.badge { font-size: 11px; padding: 2px 9px; border-radius: 99px; font-weight: 500; }
-.badge-work { background: var(--blue-bg); color: var(--blue-text); }
-.badge-life { background: var(--green-bg); color: var(--green-text); }
-.badge-done { background: var(--gray-bg); color: var(--gray-text); }
+/* sections */
+.section{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);margin-bottom:12px;overflow:hidden}
+.sec-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:0.5px solid var(--border)}
+.sec-lbl{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--text2)}
+.bdot{width:8px;height:8px;border-radius:50%}
+.bdot-w{background:#2563EB}.bdot-l{background:#059669}.bdot-d{background:#A09E99}
+.badge{font-size:11px;padding:2px 9px;border-radius:99px;font-weight:500}
+.badge-w{background:var(--blue-bg);color:var(--blue-text)}
+.badge-l{background:var(--green-bg);color:var(--green-text)}
+.badge-d{background:var(--gray-bg);color:var(--gray-text)}
 
-.add-row { display: flex; gap: 8px; padding: 10px 12px; border-bottom: 0.5px solid var(--border); align-items: center; }
-.add-row input { flex: 1; border: 0.5px solid var(--border); border-radius: var(--radius); padding: 7px 12px; font-size: 13px; background: var(--surface2); color: var(--text); outline: none; font-family: 'DM Sans', sans-serif; transition: all .15s; }
-.add-row input:focus { border-color: var(--border-strong); background: var(--surface); }
-.add-row input::placeholder { color: var(--text-3); }
-.add-btn { border: 0.5px solid var(--border-strong); background: transparent; border-radius: var(--radius); padding: 7px 12px; cursor: pointer; color: var(--text-2); font-size: 13px; display: flex; align-items: center; gap: 4px; transition: all .15s; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
-.add-btn:hover { background: var(--surface2); color: var(--text); }
+.add-row{display:flex;gap:8px;padding:10px 12px;border-bottom:0.5px solid var(--border)}
+.add-inp{flex:1;border:0.5px solid var(--border);border-radius:var(--r);padding:7px 12px;font-size:13px;background:var(--surface2);color:var(--text);outline:none;font-family:'DM Sans',sans-serif;transition:all .15s}
+.add-inp:focus{border-color:var(--border-strong);background:var(--surface)}
+.add-inp::placeholder{color:var(--text3)}
+.add-btn{border:0.5px solid var(--border-strong);background:transparent;border-radius:var(--r);padding:7px 12px;cursor:pointer;color:var(--text2);font-size:13px;display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
+.add-btn:hover{background:var(--surface2);color:var(--text)}
+.add-btn:disabled{opacity:.5;cursor:not-allowed}
 
-.task-list { padding: 2px 0; }
-.task-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; transition: background .12s; animation: slideIn .18s ease; }
-@keyframes slideIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-.task-item:hover { background: var(--surface2); }
-.task-item.done .task-text { text-decoration: line-through; color: var(--text-3); }
-.task-item.editing { background: var(--surface2); }
+.task-list{padding:2px 0}
+.task{display:flex;align-items:center;gap:12px;padding:10px 16px;transition:background .12s;animation:si .15s ease}
+@keyframes si{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+.task:hover{background:var(--surface2)}
+.task.done .task-text{text-decoration:line-through;color:var(--text3)}
+.task.editing{background:var(--surface2)}
+.chk{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border-strong);background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;color:transparent;padding:0}
+.chk:hover{border-color:var(--text2);transform:scale(1.1)}
+.chk.w{background:#2563EB;border-color:#2563EB;color:#fff}
+.chk.l{background:#059669;border-color:#059669;color:#fff}
+.task-text{flex:1;font-size:14px;line-height:1.45}
+.edit-inp{flex:1;border:none;border-bottom:1.5px solid var(--border-strong);background:transparent;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;padding:0 2px 2px;line-height:1.45}
+.edit-inp:focus{border-bottom-color:var(--accent)}
+.src-tag{font-size:11px;padding:1px 7px;border-radius:5px;flex-shrink:0}
+.src-w{background:var(--blue-bg);color:var(--blue-text)}
+.src-l{background:var(--green-bg);color:var(--green-text)}
+.edit-ok{opacity:0;border:none;background:transparent;cursor:pointer;color:#059669;font-size:15px;padding:2px 4px;border-radius:4px;transition:all .12s;flex-shrink:0}
+.task:hover .edit-ok{opacity:1}
+.edit-ok:hover{background:var(--green-bg)}
+.del{opacity:0;border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:15px;padding:2px 4px;border-radius:4px;transition:all .12s}
+.task:hover .del{opacity:1}
+.del:hover{color:#E24B4A;background:rgba(226,75,74,0.08)}
+.empty{padding:20px 16px;text-align:center;font-size:13px;color:var(--text3)}
+.done-toggle{width:100%;border:none;background:transparent;display:flex;align-items:center;gap:6px;padding:8px 16px;cursor:pointer;font-size:12px;color:var(--text3);font-family:'DM Sans',sans-serif;border-top:0.5px solid var(--border);transition:.12s}
+.done-toggle:hover{color:var(--text2);background:var(--surface2)}
+.chev{transition:transform .2s;display:inline-flex}
+.chev.open{transform:rotate(90deg)}
 
-.check-btn { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--border-strong); background: transparent; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .18s ease; color: transparent; padding: 0; }
-.check-btn:hover { border-color: var(--text-2); transform: scale(1.1); }
-.check-btn.done-work { background: #2563EB; border-color: #2563EB; color: #fff; }
-.check-btn.done-life { background: #059669; border-color: #059669; color: #fff; }
+/* skeleton */
+.skel-item{display:flex;align-items:center;gap:12px;padding:10px 16px}
+.skel{background:var(--surface2);border-radius:4px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-.task-text { flex: 1; font-size: 14px; color: var(--text); line-height: 1.45; }
-.task-edit-input { flex: 1; border: none; border-bottom: 1.5px solid var(--border-strong); background: transparent; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); outline: none; padding: 0 2px 2px; line-height: 1.45; min-width: 0; }
-.task-edit-input:focus { border-bottom-color: #D4A853; }
-.edit-confirm-btn { border: none; background: transparent; cursor: pointer; color: #059669; font-size: 15px; padding: 2px 4px; border-radius: 4px; transition: all .12s; line-height: 1; flex-shrink: 0; }
-.edit-confirm-btn:hover { background: var(--green-bg); }
-.edit-btn { opacity: 0; border: none; background: transparent; cursor: pointer; color: var(--text-3); font-size: 14px; padding: 2px 4px; line-height: 1; transition: all .12s; border-radius: 4px; flex-shrink: 0; }
-.task-item:hover .edit-btn { opacity: 1; }
-.edit-btn:hover { color: var(--text-2); background: var(--surface2); }
-
-.source-tag { font-size: 11px; padding: 1px 7px; border-radius: 5px; flex-shrink: 0; }
-.tag-work { background: var(--blue-bg); color: var(--blue-text); }
-.tag-life { background: var(--green-bg); color: var(--green-text); }
-.del-btn { opacity: 0; border: none; background: transparent; cursor: pointer; color: var(--text-3); font-size: 15px; padding: 2px 4px; line-height: 1; transition: all .12s; border-radius: 4px; }
-.task-item:hover .del-btn { opacity: 1; }
-.del-btn:hover { color: #E24B4A; background: rgba(226,75,74,0.08); }
-.empty { padding: 22px 16px; text-align: center; font-size: 13px; color: var(--text-3); }
-
-.done-toggle { width: 100%; border: none; background: transparent; display: flex; align-items: center; gap: 6px; padding: 9px 16px; cursor: pointer; font-size: 12px; color: var(--text-3); text-align: left; transition: .12s; font-family: 'DM Sans', sans-serif; border-top: 0.5px solid var(--border); }
-.done-toggle:hover { color: var(--text-2); background: var(--surface2); }
-.done-toggle .chev { transition: transform .2s; display: inline-flex; }
-.done-toggle.open .chev { transform: rotate(90deg); }
-
-/* Loading skeleton */
-.skeleton-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; }
-.skel { background: var(--surface2); border-radius: 4px; animation: pulse 1.4s ease-in-out infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-.toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(12px); background: var(--text); color: var(--bg); padding: 10px 20px; border-radius: 99px; font-size: 13px; font-weight: 500; opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 999; white-space: nowrap; }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+/* toast */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--text);color:var(--bg);padding:9px 20px;border-radius:99px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:all .22s;z-index:999;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 
-<!-- Auth Screen -->
-<div id="auth-screen">
-  <div class="auth-card">
-    <div class="auth-logo">任务<span>·</span>清单</div>
-    <div class="auth-sub">登录后数据永久保存，随时随地访问</div>
-
-    <div class="auth-toggle">
-      <button class="auth-toggle-btn active" id="tab-login" onclick="switchAuthTab('login')">登录</button>
-      <button class="auth-toggle-btn" id="tab-register" onclick="switchAuthTab('register')">注册</button>
+<div id="auth">
+  <div class="card">
+    <div class="logo">任务<span>·</span>清单</div>
+    <div class="sub">登录后数据永久保存，随时随地访问</div>
+    <div class="toggle">
+      <button id="t-login" class="on" onclick="setMode('login')">登录</button>
+      <button id="t-reg" onclick="setMode('reg')">注册</button>
     </div>
-
-    <!-- Email + Password form -->
     <div id="auth-form">
-      <label class="auth-label">邮箱</label>
-      <input class="auth-input" id="email-input" type="email" placeholder="请输入邮箱地址" onkeydown="if(event.key==='Enter')document.getElementById('pw-input').focus()">
-      <label class="auth-label">密码</label>
-      <input class="auth-input" id="pw-input" type="password" placeholder="请输入密码（至少6位）" onkeydown="if(event.key==='Enter')submitAuth()">
-      <div class="err-msg" id="auth-err"></div>
-      <hr class="auth-divider">
-      <button class="auth-btn" onclick="submitAuth()" id="auth-submit-btn">登录</button>
-      <p class="auth-hint" id="auth-hint-text">还没有账号？点上方「注册」创建</p>
+      <label class="lbl">邮箱</label>
+      <input class="inp" id="em" type="email" placeholder="请输入邮箱地址">
+      <label class="lbl">密码</label>
+      <input class="inp" id="pw" type="password" placeholder="请输入密码（至少6位）"
+        onkeydown="if(event.key==='Enter')doAuth()">
+      <div class="err" id="auth-err"></div>
+      <hr class="div">
+      <button class="btn-primary" id="auth-btn" onclick="doAuth()">登录</button>
     </div>
-
-    <!-- Success state (after register, before email confirm) -->
-    <div class="success-box" id="auth-success">
-      <p>📬 验证邮件已发送<br>请前往邮箱点击确认链接<br>完成后即可登录</p>
+    <div class="success" id="auth-ok">
+      📬 验证邮件已发送<br>请前往邮箱点击确认链接后回来登录
     </div>
   </div>
 </div>
 
-<!-- App Screen -->
-<div id="app-screen">
-  <div class="app">
-    <div class="header">
-      <div class="header-top">
-        <div class="logo">任务<span>·</span>清单</div>
-        <div class="header-right">
-          <span class="date-label" id="date-label"></span>
-          <button class="logout-btn" onclick="sb.auth.signOut();localStorage.clear();sessionStorage.clear();setTimeout(()=>location.reload(),100)">
-            <i class="ti ti-logout" style="font-size:12px" aria-hidden="true"></i>退出
+<div id="app">
+  <div class="wrap">
+    <div class="hdr">
+      <div class="hdr-top">
+        <div class="hdr-logo">任务<span>·</span>清单</div>
+        <div class="hdr-right">
+          <span class="date" id="date-el"></span>
+          <button class="out-btn" id="logout-btn">
+            <i class="ti ti-logout" style="font-size:12px"></i>退出
           </button>
         </div>
       </div>
-      <div class="stats-row">
-        <div class="stat-chip"><b id="s-pending">0</b> 项待完成</div>
-        <div class="stat-chip" style="color:var(--text-3)">·</div>
-        <div class="stat-chip"><b id="s-done">0</b> 已完成</div>
-        <div class="stat-chip" style="color:var(--text-3)">·</div>
-        <div class="stat-chip user-phone" id="user-email-label"></div>
+      <div class="stats">
+        <span><b id="s-pend">0</b> 项待完成</span>
+        <span>·</span>
+        <span><b id="s-done">0</b> 已完成</span>
+        <span>·</span>
+        <span id="s-email"></span>
       </div>
     </div>
 
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('all')"><span class="tab-dot" style="background:#888"></span>全部</button>
-      <button class="tab" onclick="switchTab('work')"><span class="tab-dot dot-work"></span>工作</button>
-      <button class="tab" onclick="switchTab('life')"><span class="tab-dot dot-life"></span>个人</button>
+      <button class="tab on" id="tab-all" onclick="setTab('all')">
+        <span class="dot" style="background:#888"></span>全部
+      </button>
+      <button class="tab" id="tab-work" onclick="setTab('work')">
+        <span class="dot bdot-w"></span>工作
+      </button>
+      <button class="tab" id="tab-life" onclick="setTab('life')">
+        <span class="dot bdot-l"></span>个人
+      </button>
     </div>
 
-    <button class="import-trigger" onclick="toggleImport()" id="import-trigger-btn">
-      <i class="ti ti-file-import" style="font-size:14px" aria-hidden="true"></i>
-      批量导入待办
+    <button class="imp-btn" id="imp-toggle-btn" onclick="toggleImport()">
+      <i class="ti ti-file-import" style="font-size:13px"></i>批量导入待办
     </button>
-
-    <div class="import-bar" id="import-bar">
-      <div class="import-label"><i class="ti ti-bolt" style="font-size:13px" aria-hidden="true"></i>一键批量转录</div>
-      <textarea class="import-textarea" id="import-input" placeholder="粘贴或输入你的待办，每行一条&#10;或用空格 / 逗号 / 换行分隔&#10;例如：创建skill 报销 下载文档" oninput="previewImport()" onkeydown="handleImportKey(event)"></textarea>
-      <div class="import-hint">支持：换行 / 空格 / 逗号 / 顿号 / 分号 分隔 · 按 Ctrl+Enter 快速导入</div>
-      <div class="import-preview" id="import-preview">
-        <div class="preview-label">识别到以下任务：</div>
-        <div id="preview-items"></div>
+    <div class="imp-box" id="imp-box">
+      <div class="imp-lbl"><i class="ti ti-bolt" style="font-size:12px"></i> 一键批量转录</div>
+      <textarea class="imp-ta" id="imp-ta"
+        placeholder="粘贴或输入待办，空格/换行/逗号分隔&#10;例如：创建skill 报销 下载文档"
+        oninput="previewImp()" onkeydown="if(event.ctrlKey&&event.key==='Enter')doImport()"></textarea>
+      <div class="imp-hint">支持空格 / 换行 / 逗号 / 顿号 / 分号分隔 · Ctrl+Enter 快速导入</div>
+      <div class="imp-prev" id="imp-prev">
+        <div class="imp-prev-lbl">识别到以下任务：</div>
+        <div id="imp-prev-items"></div>
       </div>
-      <div class="import-actions">
-        <div style="display:flex;gap:6px;align-items:center;flex:1">
-          <span style="font-size:12px;color:#A07830">导入为</span>
-          <select id="import-cat" style="font-size:12px;border:0.5px solid #E8C97A;border-radius:6px;padding:3px 8px;background:rgba(255,255,255,0.6);color:var(--text);font-family:'DM Sans',sans-serif;cursor:pointer;outline:none;">
-            <option value="work">工作</option>
-            <option value="life">个人</option>
-          </select>
-        </div>
-        <button class="import-btn-cancel" onclick="cancelImport()">取消</button>
-        <button class="import-btn-primary" onclick="doImport()">
-          <i class="ti ti-check" style="font-size:13px" aria-hidden="true"></i>确认导入
+      <div class="imp-actions">
+        <span style="font-size:12px;color:#A07830;margin-right:4px">导入为</span>
+        <select class="imp-cat" id="imp-cat">
+          <option value="work">工作</option>
+          <option value="life">个人</option>
+        </select>
+        <div style="flex:1"></div>
+        <button class="imp-cancel" onclick="closeImport()">取消</button>
+        <button class="imp-ok" onclick="doImport()">
+          <i class="ti ti-check" style="font-size:12px"></i>确认导入
         </button>
       </div>
     </div>
 
-    <div id="main-panel"></div>
+    <div id="panel"></div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-// ── Supabase init ──
-const SUPA_URL = 'https://iiluwgewzfjpjlqnaodw.supabase.co';
-const SUPA_KEY = 'sb_publishable_RigwAm104BYm4f5oaZjNMg_cwm1CbAT';
-const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+// ── init ──
+const SB = supabase.createClient(
+  'https://iiluwgewzfjpjlqnaodw.supabase.co',
+  'sb_publishable_RigwAm104BYm4f5oaZjNMg_cwm1CbAT'
+);
 
-// ── State ──
-let tasks = [];
-let currentTab = 'all';
-let doneOpen = true;
-let importOpen = false;
-let editingId = null;
-let currentUser = null;
-let authMode = 'login'; // 'login' | 'register'
+// ── state ──
+let USER = null;
+let TASKS = [];
+let TAB = 'all';
+let DONE_OPEN = true;
+let EDITING = null;
+let IMP_OPEN = false;
+let AUTH_MODE = 'login';
 
-// ── Date label ──
-(function(){
-  const d = new Date();
-  const days = ['周日','周一','周二','周三','周四','周五','周六'];
-  const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-  const el = document.getElementById('date-label');
-  if (el) el.textContent = months[d.getMonth()] + d.getDate() + '日 ' + days[d.getDay()];
+// ── date ──
+;(function(){
+  const d=new Date(),D=['周日','周一','周二','周三','周四','周五','周六'],
+    M=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  const el=document.getElementById('date-el');
+  if(el) el.textContent=M[d.getMonth()]+d.getDate()+'日 '+D[d.getDay()];
 })();
 
-// ── Auth tab switch ──
-function switchAuthTab(mode) {
-  authMode = mode;
-  document.getElementById('tab-login').classList.toggle('active', mode === 'login');
-  document.getElementById('tab-register').classList.toggle('active', mode === 'register');
-  document.getElementById('auth-submit-btn').textContent = mode === 'login' ? '登录' : '注册';
-  document.getElementById('auth-hint-text').textContent = mode === 'login' ? '还没有账号？点上方「注册」创建' : '已有账号？点上方「登录」直接进入';
-  document.getElementById('auth-success').classList.remove('show');
+// ── logout (robust) ──
+document.getElementById('logout-btn').addEventListener('click', function() {
+  // clear all supabase storage keys
+  Object.keys(localStorage).forEach(k => {
+    if (k.startsWith('sb-')) localStorage.removeItem(k);
+  });
+  Object.keys(sessionStorage).forEach(k => {
+    if (k.startsWith('sb-')) sessionStorage.removeItem(k);
+  });
+  SB.auth.signOut().catch(()=>{});
+  location.href = location.href; // force full reload
+});
+
+// ── auth mode ──
+function setMode(m) {
+  AUTH_MODE = m;
+  document.getElementById('t-login').classList.toggle('on', m==='login');
+  document.getElementById('t-reg').classList.toggle('on', m==='reg');
+  document.getElementById('auth-btn').textContent = m==='login' ? '登录' : '注册';
+  document.getElementById('auth-err').classList.remove('on');
+  document.getElementById('auth-ok').classList.remove('on');
   document.getElementById('auth-form').style.display = 'block';
-  hideErr('auth-err');
 }
 
-// ── Submit login or register ──
-async function submitAuth() {
-  const email = document.getElementById('email-input').value.trim();
-  const pw = document.getElementById('pw-input').value;
-  if (!email || !email.includes('@')) { showErr('auth-err', '请输入正确的邮箱地址'); return; }
-  if (pw.length < 6) { showErr('auth-err', '密码至少需要6位'); return; }
-  hideErr('auth-err');
-  const btn = document.getElementById('auth-submit-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
-
-  if (authMode === 'register') {
-    const { error } = await sb.auth.signUp({ email, password: pw });
+async function doAuth() {
+  const em = document.getElementById('em').value.trim();
+  const pw = document.getElementById('pw').value;
+  const errEl = document.getElementById('auth-err');
+  errEl.classList.remove('on');
+  if (!em || !em.includes('@')) { showErr('请输入正确的邮箱地址'); return; }
+  if (pw.length < 6) { showErr('密码至少需要6位'); return; }
+  const btn = document.getElementById('auth-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>';
+  if (AUTH_MODE === 'reg') {
+    const { error } = await SB.auth.signUp({ email: em, password: pw });
     btn.disabled = false; btn.textContent = '注册';
-    if (error) { showErr('auth-err', translateError(error.message)); return; }
-    // Show success/confirm email notice
+    if (error) { showErr(xlErr(error.message)); return; }
     document.getElementById('auth-form').style.display = 'none';
-    document.getElementById('auth-success').classList.add('show');
+    document.getElementById('auth-ok').classList.add('on');
   } else {
-    const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+    const { error } = await SB.auth.signInWithPassword({ email: em, password: pw });
     btn.disabled = false; btn.textContent = '登录';
-    if (error) { showErr('auth-err', translateError(error.message)); return; }
-    // onAuthStateChange fires automatically
+    if (error) { showErr(xlErr(error.message)); return; }
+    // onAuthStateChange will handle redirect
   }
 }
 
-function translateError(msg) {
-  if (msg.includes('Invalid login credentials')) return '邮箱或密码错误';
-  if (msg.includes('Email not confirmed')) return '请先前往邮箱完成验证后再登录';
-  if (msg.includes('User already registered')) return '该邮箱已注册，请直接登录';
-  if (msg.includes('Password should be')) return '密码至少需要6位';
-  if (msg.includes('rate limit')) return '操作太频繁，请稍后再试';
-  return msg;
+function showErr(msg) {
+  const el = document.getElementById('auth-err');
+  el.textContent = msg; el.classList.add('on');
+}
+function xlErr(m) {
+  if (m.includes('Invalid login credentials')) return '邮箱或密码错误';
+  if (m.includes('Email not confirmed')) return '请先前往邮箱点击验证链接后再登录';
+  if (m.includes('User already registered')) return '该邮箱已注册，请直接登录';
+  if (m.includes('rate limit')) return '操作太频繁，请稍后再试';
+  return m;
 }
 
-async function logout() {
-  await sb.auth.signOut();
-  location.reload();
-}
-
-// ── Auth state listener ──
-sb.auth.onAuthStateChange(async (event, session) => {
+// ── auth state ──
+SB.auth.onAuthStateChange((event, session) => {
   if (session && session.user) {
-    currentUser = session.user;
-    showApp();
-    await loadTasks();
+    USER = session.user;
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    const [local, domain] = (USER.email||'').split('@');
+    document.getElementById('s-email').textContent =
+      (local.length > 2 ? local.slice(0,2)+'***' : local) + '@' + domain;
+    loadTasks();
   } else {
-    currentUser = null;
-    showAuth();
+    USER = null;
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('auth').style.display = 'flex';
   }
 });
 
-function showApp() {
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('app-screen').style.display = 'block';
-  const email = currentUser.email || '';
-  // show abbreviated email: ab***@gmail.com
-  const [local, domain] = email.split('@');
-  const short = local.length > 2 ? local.slice(0, 2) + '***@' + domain : email;
-  document.getElementById('user-email-label').textContent = short;
-}
-
-function showAuth() {
-  document.getElementById('app-screen').style.display = 'none';
-  document.getElementById('auth-screen').style.display = 'flex';
-  document.getElementById('auth-form').style.display = 'block';
-  document.getElementById('auth-success').classList.remove('show');
-  document.getElementById('email-input').value = '';
-  document.getElementById('pw-input').value = '';
-  switchAuthTab('login');
-}
-
-// ── Data ──
+// ── data ──
 async function loadTasks() {
-  renderLoading();
-  const { data, error } = await sb.from('todos')
-    .select('*')
-    .order('created_at', { ascending: false });
-  if (error) { showToast('加载失败，请刷新重试'); return; }
-  tasks = data || [];
+  renderSkeleton();
+  const { data, error } = await SB.from('todos')
+    .select('*').order('created_at', { ascending: false });
+  if (error) { toast('加载失败，请刷新重试'); return; }
+  TASKS = data || [];
   render();
 }
 
 async function addTask(cat) {
-  const inp = document.getElementById('inp-' + cat);
+  const inp = document.getElementById('add-'+cat);
   const text = inp.value.trim();
   if (!text) { inp.focus(); return; }
   inp.value = '';
-  const optimistic = { id: 'tmp-' + Date.now(), text, cat, done: false, created_at: new Date().toISOString() };
-  tasks.unshift(optimistic);
+  const btn = document.querySelector('[data-addbtn="'+cat+'"]');
+  if (btn) btn.disabled = true;
+  const { data, error } = await SB.from('todos')
+    .insert({ text, cat, done: false }).select().single();
+  if (btn) btn.disabled = false;
+  if (error) { toast('添加失败，请重试'); inp.value = text; return; }
+  TASKS.unshift(data);
   render();
   inp.focus();
-  const { data, error } = await sb.from('todos').insert({ text, cat, done: false }).select().single();
-  if (error) { tasks = tasks.filter(t => t.id !== optimistic.id); render(); showToast('添加失败'); return; }
-  tasks = tasks.map(t => t.id === optimistic.id ? data : t);
-  render();
 }
 
-async function toggle(id) {
-  const t = tasks.find(t => t.id === id);
+async function toggleTask(id) {
+  const t = TASKS.find(t => t.id === id);
   if (!t) return;
   const newDone = !t.done;
   t.done = newDone;
   render();
-  await sb.from('todos').update({ done: newDone }).eq('id', id);
+  const { error } = await SB.from('todos').update({ done: newDone }).eq('id', id);
+  if (error) { t.done = !newDone; render(); toast('操作失败'); }
 }
 
-async function del(id) {
-  tasks = tasks.filter(t => t.id !== id);
+async function delTask(id) {
+  TASKS = TASKS.filter(t => t.id !== id);
   render();
-  await sb.from('todos').delete().eq('id', id);
+  await SB.from('todos').delete().eq('id', id);
 }
 
-// ── Edit ──
 function startEdit(id) {
-  editingId = id;
-  render();
-  const inp = document.getElementById('edit-inp-' + id);
+  EDITING = id; render();
+  const inp = document.getElementById('ei-'+id);
   if (inp) { inp.focus(); inp.select(); }
 }
 
 async function saveEdit(id) {
-  const inp = document.getElementById('edit-inp-' + id);
-  if (!inp) return;
-  const val = inp.value.trim();
+  if (EDITING !== id) return;
+  const inp = document.getElementById('ei-'+id);
+  const val = inp ? inp.value.trim() : '';
+  EDITING = null;
   if (val) {
-    const t = tasks.find(t => t.id === id);
-    if (t) {
+    const t = TASKS.find(t => t.id === id);
+    if (t && t.text !== val) {
       t.text = val;
-      await sb.from('todos').update({ text: val }).eq('id', id);
+      await SB.from('todos').update({ text: val }).eq('id', id);
     }
   }
-  editingId = null;
   render();
 }
 
-function cancelEdit() { editingId = null; render(); }
+function cancelEdit() { EDITING = null; render(); }
 
-function handleEditKey(e, id) {
-  if (e.key === 'Enter') saveEdit(id);
-  if (e.key === 'Escape') cancelEdit();
-}
-
-// ── Import ──
-function parseImportText(raw) {
+// ── import ──
+function parseImp(raw) {
   if (!raw.trim()) return [];
-  const lines = raw.split(/\n/);
   const items = [];
-  for (const line of lines) {
-    const parts = line.split(/[\s,，；;、]+/).map(s => s.trim()).filter(s => s.length > 0);
-    items.push(...parts);
-  }
+  raw.split(/\n/).forEach(line => {
+    line.split(/[\s,，；;、]+/).map(s=>s.trim()).filter(Boolean).forEach(s=>items.push(s));
+  });
   return [...new Set(items)];
 }
-
-function previewImport() {
-  const raw = document.getElementById('import-input').value;
-  const items = parseImportText(raw);
-  const preview = document.getElementById('import-preview');
-  const container = document.getElementById('preview-items');
-  if (items.length === 0) { preview.classList.remove('show'); return; }
-  preview.classList.add('show');
-  container.innerHTML = items.map(t => `<div class="preview-item">${esc(t)}</div>`).join('');
+function previewImp() {
+  const items = parseImp(document.getElementById('imp-ta').value);
+  const prev = document.getElementById('imp-prev');
+  if (!items.length) { prev.classList.remove('on'); return; }
+  prev.classList.add('on');
+  document.getElementById('imp-prev-items').innerHTML =
+    items.map(t=>`<div class="imp-item">${esc(t)}</div>`).join('');
 }
-
 function toggleImport() {
-  importOpen = !importOpen;
-  const bar = document.getElementById('import-bar');
-  const btn = document.getElementById('import-trigger-btn');
-  if (importOpen) {
-    bar.classList.add('active');
-    btn.innerHTML = '<i class="ti ti-x" style="font-size:14px" aria-hidden="true"></i> 收起';
-    setTimeout(() => document.getElementById('import-input').focus(), 50);
-  } else {
-    bar.classList.remove('active');
-    btn.innerHTML = '<i class="ti ti-file-import" style="font-size:14px" aria-hidden="true"></i> 批量导入待办';
-    document.getElementById('import-input').value = '';
-    document.getElementById('import-preview').classList.remove('show');
-  }
+  IMP_OPEN = !IMP_OPEN;
+  document.getElementById('imp-box').classList.toggle('on', IMP_OPEN);
+  document.getElementById('imp-toggle-btn').innerHTML = IMP_OPEN
+    ? '<i class="ti ti-x" style="font-size:13px"></i>收起'
+    : '<i class="ti ti-file-import" style="font-size:13px"></i>批量导入待办';
+  if (IMP_OPEN) setTimeout(()=>document.getElementById('imp-ta').focus(), 50);
 }
-
-function cancelImport() { importOpen = true; toggleImport(); }
-function handleImportKey(e) { if (e.ctrlKey && e.key === 'Enter') doImport(); }
-
+function closeImport() {
+  IMP_OPEN = false;
+  document.getElementById('imp-box').classList.remove('on');
+  document.getElementById('imp-toggle-btn').innerHTML =
+    '<i class="ti ti-file-import" style="font-size:13px"></i>批量导入待办';
+  document.getElementById('imp-ta').value = '';
+  document.getElementById('imp-prev').classList.remove('on');
+}
 async function doImport() {
-  const raw = document.getElementById('import-input').value;
-  const items = parseImportText(raw);
-  if (items.length === 0) { showToast('请输入待办内容'); return; }
-  const cat = document.getElementById('import-cat').value;
+  const items = parseImp(document.getElementById('imp-ta').value);
+  if (!items.length) { toast('请输入待办内容'); return; }
+  const cat = document.getElementById('imp-cat').value;
+  closeImport();
   const rows = items.map(text => ({ text, cat, done: false }));
-  // optimistic
-  const optimistics = rows.map(r => ({ ...r, id: 'tmp-' + Math.random(), created_at: new Date().toISOString() }));
-  tasks.unshift(...optimistics);
-  cancelImport();
-  render();
-  showToast(`✓ 已导入 ${items.length} 条任务`);
-  const { data, error } = await sb.from('todos').insert(rows).select();
-  if (error) { tasks = tasks.filter(t => !String(t.id).startsWith('tmp-')); render(); showToast('导入失败'); return; }
-  tasks = tasks.filter(t => !String(t.id).startsWith('tmp-'));
-  tasks.unshift(...data);
+  const { data, error } = await SB.from('todos').insert(rows).select();
+  if (error) { toast('导入失败，请重试'); return; }
+  TASKS.unshift(...data.reverse());
+  toast('✓ 已导入 ' + items.length + ' 条任务');
   render();
 }
 
-// ── Render ──
-function switchTab(tab) {
-  currentTab = tab;
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', ['all','work','life'][i] === tab);
+// ── tabs ──
+function setTab(t) {
+  TAB = t;
+  ['all','work','life'].forEach(id => {
+    document.getElementById('tab-'+id).classList.toggle('on', id===t);
   });
   render();
 }
 
+// ── render ──
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
-}
-function showErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.add('show'); }
-function hideErr(id) { document.getElementById(id).classList.remove('show'); }
-
-function checkBtnClass(cat, done) {
-  if (!done) return 'check-btn';
-  return 'check-btn ' + (cat === 'work' ? 'done-work' : 'done-life');
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('on');
+  setTimeout(()=>el.classList.remove('on'), 2200);
 }
 
-function taskItemHTML(t, showTag) {
-  if (editingId === t.id) {
-    return `<div class="task-item editing">
-      <button class="${checkBtnClass(t.cat, t.done)}" onclick="toggle('${t.id}')" aria-label="标记完成">
-        ${t.done ? '<i class="ti ti-check" style="font-size:10px" aria-hidden="true"></i>' : ''}
+function chkClass(cat, done) {
+  if (!done) return 'chk';
+  return 'chk ' + (cat==='work' ? 'w' : 'l');
+}
+
+function taskHTML(t, showTag) {
+  if (EDITING === t.id) {
+    return `<div class="task editing">
+      <button class="${chkClass(t.cat,t.done)}" onclick="toggleTask('${t.id}')">
+        ${t.done?'<i class="ti ti-check" style="font-size:10px"></i>':''}
       </button>
-      <input class="task-edit-input" id="edit-inp-${t.id}" value="${esc(t.text)}"
-        onkeydown="handleEditKey(event,'${t.id}')"
+      <input class="edit-inp" id="ei-${t.id}" value="${esc(t.text)}"
+        onkeydown="if(event.key==='Enter')saveEdit('${t.id}');else if(event.key==='Escape')cancelEdit()"
         onblur="saveEdit('${t.id}')">
-      <button class="edit-confirm-btn" onmousedown="event.preventDefault();saveEdit('${t.id}')" aria-label="保存">
-        <i class="ti ti-check" style="font-size:14px" aria-hidden="true"></i>
+      <button class="edit-ok" onmousedown="event.preventDefault();saveEdit('${t.id}')">
+        <i class="ti ti-check" style="font-size:13px"></i>
       </button>
     </div>`;
   }
-  return `<div class="task-item ${t.done ? 'done' : ''}" ondblclick="startEdit('${t.id}')">
-    <button class="${checkBtnClass(t.cat, t.done)}" onclick="toggle('${t.id}')" aria-label="${t.done ? '取消完成' : '标记完成'}">
-      ${t.done ? '<i class="ti ti-check" style="font-size:10px" aria-hidden="true"></i>' : ''}
+  return `<div class="task ${t.done?'done':''}" ondblclick="startEdit('${t.id}')">
+    <button class="${chkClass(t.cat,t.done)}" onclick="toggleTask('${t.id}')">
+      ${t.done?'<i class="ti ti-check" style="font-size:10px"></i>':''}
     </button>
     <span class="task-text">${esc(t.text)}</span>
-    ${showTag ? `<span class="source-tag ${t.cat==='work'?'tag-work':'tag-life'}">${t.cat==='work'?'工作':'个人'}</span>` : ''}
-    <button class="edit-btn" onclick="startEdit('${t.id}')" aria-label="编辑"><i class="ti ti-pencil" style="font-size:13px" aria-hidden="true"></i></button>
-    <button class="del-btn" onclick="del('${t.id}')" aria-label="删除">×</button>
+    ${showTag?`<span class="src-tag ${t.cat==='work'?'src-w':'src-l'}">${t.cat==='work'?'工作':'个人'}</span>`:''}
+    <button class="edit-ok" onclick="startEdit('${t.id}')">
+      <i class="ti ti-pencil" style="font-size:12px"></i>
+    </button>
+    <button class="del" onclick="delTask('${t.id}')">×</button>
   </div>`;
 }
 
-function skeletonHTML() {
-  return [80,120,100].map(w => `<div class="skeleton-item">
-    <div class="skel" style="width:18px;height:18px;border-radius:50%"></div>
-    <div class="skel" style="width:${w}px;height:14px"></div>
-  </div>`).join('');
+function addRowHTML(cat, ph) {
+  return `<div class="add-row">
+    <input class="add-inp" id="add-${cat}" type="text" placeholder="${ph}"
+      onkeydown="if(event.key==='Enter')addTask('${cat}')">
+    <button class="add-btn" data-addbtn="${cat}" onclick="addTask('${cat}')">
+      <i class="ti ti-plus"></i> 添加
+    </button>
+  </div>`;
 }
 
-function renderLoading() {
-  document.getElementById('main-panel').innerHTML = `
-    <div class="section"><div class="task-list">${skeletonHTML()}</div></div>`;
-}
-
-function sectionHTML(cat, label, dotClass, badgeClass, placeholder) {
-  const pending = tasks.filter(t => t.cat === cat && !t.done);
-  const done = tasks.filter(t => t.cat === cat && t.done);
+function secHTML(cat, label, dotCls, badgeCls, ph) {
+  const pend = TASKS.filter(t=>t.cat===cat&&!t.done);
+  const done = TASKS.filter(t=>t.cat===cat&&t.done);
   return `<div class="section">
-    <div class="section-head">
-      <div class="section-label"><span class="dot ${dotClass}"></span>${label}</div>
-      <span class="badge ${badgeClass}">${pending.length} 待完成</span>
+    <div class="sec-head">
+      <div class="sec-lbl"><span class="bdot ${dotCls}"></span>${label}</div>
+      <span class="badge ${badgeCls}">${pend.length} 待完成</span>
     </div>
-    <div class="add-row">
-      <input id="inp-${cat}" type="text" placeholder="${placeholder}" onkeydown="if(event.key==='Enter')addTask('${cat}')">
-      <button class="add-btn" onclick="addTask('${cat}')"><i class="ti ti-plus" aria-hidden="true"></i> 添加</button>
-    </div>
+    ${addRowHTML(cat, ph)}
     <div class="task-list">
-      ${pending.length === 0 ? '<div class="empty"><i class="ti ti-check" style="font-size:16px;vertical-align:-2px;margin-right:6px" aria-hidden="true"></i>全部完成啦～</div>' : ''}
-      ${pending.map(t => taskItemHTML(t, false)).join('')}
+      ${pend.length===0?'<div class="empty"><i class="ti ti-check" style="font-size:15px;vertical-align:-2px;margin-right:5px"></i>全部完成啦～</div>':''}
+      ${pend.map(t=>taskHTML(t,false)).join('')}
     </div>
-    ${done.length > 0 ? `
-      <button class="done-toggle ${doneOpen ? 'open' : ''}" onclick="toggleDone()">
-        <span class="chev"><i class="ti ti-chevron-right" style="font-size:12px" aria-hidden="true"></i></span>
+    ${done.length>0?`
+      <button class="done-toggle" onclick="DONE_OPEN=!DONE_OPEN;render()">
+        <span class="chev ${DONE_OPEN?'open':''}"><i class="ti ti-chevron-right" style="font-size:12px"></i></span>
         已完成 ${done.length} 项
       </button>
-      ${doneOpen ? `<div class="task-list">${done.map(t => taskItemHTML(t, false)).join('')}</div>` : ''}
-    ` : ''}
+      ${DONE_OPEN?`<div class="task-list">${done.map(t=>taskHTML(t,false)).join('')}</div>`:''}
+    `:''}
   </div>`;
 }
 
 function allHTML() {
-  const wPend = tasks.filter(t => t.cat === 'work' && !t.done);
-  const lPend = tasks.filter(t => t.cat === 'life' && !t.done);
-  const allDone = tasks.filter(t => t.done);
-  return `<div class="section">
-    <div class="section-head">
-      <div class="section-label"><span class="dot dot-work"></span>工作</div>
-      <span class="badge badge-work">${wPend.length} 待完成</span>
+  const wp = TASKS.filter(t=>t.cat==='work'&&!t.done);
+  const lp = TASKS.filter(t=>t.cat==='life'&&!t.done);
+  const ad = TASKS.filter(t=>t.done);
+  return `
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-lbl"><span class="bdot bdot-w"></span>工作</div>
+        <span class="badge badge-w">${wp.length} 待完成</span>
+      </div>
+      ${addRowHTML('work','添加工作任务…')}
+      <div class="task-list">
+        ${wp.length===0?'<div class="empty"><i class="ti ti-check" style="font-size:15px;vertical-align:-2px;margin-right:5px"></i>工作任务全部完成！</div>':''}
+        ${wp.map(t=>taskHTML(t,false)).join('')}
+      </div>
     </div>
-    <div class="add-row">
-      <input id="inp-work" type="text" placeholder="添加工作任务…" onkeydown="if(event.key==='Enter')addTask('work')">
-      <button class="add-btn" onclick="addTask('work')"><i class="ti ti-plus" aria-hidden="true"></i> 添加</button>
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-lbl"><span class="bdot bdot-l"></span>个人</div>
+        <span class="badge badge-l">${lp.length} 待完成</span>
+      </div>
+      ${addRowHTML('life','添加个人事项…')}
+      <div class="task-list">
+        ${lp.length===0?'<div class="empty"><i class="ti ti-check" style="font-size:15px;vertical-align:-2px;margin-right:5px"></i>个人任务全部完成！</div>':''}
+        ${lp.map(t=>taskHTML(t,false)).join('')}
+      </div>
     </div>
-    <div class="task-list">
-      ${wPend.length === 0 ? '<div class="empty"><i class="ti ti-check" style="font-size:16px;vertical-align:-2px;margin-right:6px" aria-hidden="true"></i>工作任务全部完成！</div>' : ''}
-      ${wPend.map(t => taskItemHTML(t, false)).join('')}
-    </div>
-  </div>
-  <div class="section">
-    <div class="section-head">
-      <div class="section-label"><span class="dot dot-life"></span>个人</div>
-      <span class="badge badge-life">${lPend.length} 待完成</span>
-    </div>
-    <div class="add-row">
-      <input id="inp-life" type="text" placeholder="添加个人事项…" onkeydown="if(event.key==='Enter')addTask('life')">
-      <button class="add-btn" onclick="addTask('life')"><i class="ti ti-plus" aria-hidden="true"></i> 添加</button>
-    </div>
-    <div class="task-list">
-      ${lPend.length === 0 ? '<div class="empty"><i class="ti ti-check" style="font-size:16px;vertical-align:-2px;margin-right:6px" aria-hidden="true"></i>个人任务全部完成！</div>' : ''}
-      ${lPend.map(t => taskItemHTML(t, false)).join('')}
-    </div>
-  </div>
-  ${allDone.length > 0 ? `<div class="section">
-    <div class="section-head">
-      <div class="section-label"><span class="dot dot-done"></span>已完成</div>
-      <span class="badge badge-done">${allDone.length} 项</span>
-    </div>
-    <div class="task-list">${allDone.map(t => taskItemHTML(t, true)).join('')}</div>
-  </div>` : ''}`;
+    ${ad.length>0?`<div class="section">
+      <div class="sec-head">
+        <div class="sec-lbl"><span class="bdot bdot-d"></span>已完成</div>
+        <span class="badge badge-d">${ad.length} 项</span>
+      </div>
+      <div class="task-list">${ad.map(t=>taskHTML(t,true)).join('')}</div>
+    </div>`:''}`;
 }
 
-function toggleDone() { doneOpen = !doneOpen; render(); }
+function renderSkeleton() {
+  document.getElementById('panel').innerHTML =
+    `<div class="section"><div class="task-list">`+
+    [80,120,100].map(w=>`<div class="skel-item">
+      <div class="skel" style="width:18px;height:18px;border-radius:50%"></div>
+      <div class="skel" style="width:${w}px;height:14px"></div>
+    </div>`).join('')+`</div></div>`;
+}
 
 function render() {
-  const pending = tasks.filter(t => !t.done).length;
-  document.getElementById('s-pending').textContent = pending;
-  document.getElementById('s-done').textContent = tasks.length - pending;
+  const pend = TASKS.filter(t=>!t.done).length;
+  document.getElementById('s-pend').textContent = pend;
+  document.getElementById('s-done').textContent = TASKS.length - pend;
   let html = '';
-  if (currentTab === 'all') html = allHTML();
-  else if (currentTab === 'work') html = sectionHTML('work','工作','dot-work','badge-work','添加工作任务…');
-  else html = sectionHTML('life','个人','dot-life','badge-life','添加个人事项…');
-  document.getElementById('main-panel').innerHTML = html;
+  if (TAB==='all') html = allHTML();
+  else if (TAB==='work') html = secHTML('work','工作','bdot-w','badge-w','添加工作任务…');
+  else html = secHTML('life','个人','bdot-l','badge-l','添加个人事项…');
+  document.getElementById('panel').innerHTML = html;
 }
 </script>
 </body>
